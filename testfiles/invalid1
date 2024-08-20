@@ -1,0 +1,14 @@
+MAIN!: add r1, LIST
+LOOP: stop #48
+ lea STR, r1, r3
+ inc r1, r2
+ mov *r8,K
+ print r1, r4
+ dec K, r3
+  jmp LOOP
+ END: stop
+ STR: .string ""abcd"
+ LIST: .data 6, -9,
+  .data ,-100
+K:.data 31
+dec K1
