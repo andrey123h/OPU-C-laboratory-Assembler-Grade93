@@ -21,7 +21,7 @@ int exe_first_pass(FILE *file,char* file_name,macro* head_macro) {
     machine_code *head_machine_code;
     label *labels_head;
     data_list *head_data;
-    char *dest_bnr, *src_bnr, *secend_word, *third_word;
+    char *dest_bnr, *src_bnr, *second_word, *third_word;
     first_word *word; /* first word of instruction */
     OperandMethod type1, type2; /* operand 1, operand 2 types */
     label *current; /* for label names iteration */
@@ -38,7 +38,7 @@ int exe_first_pass(FILE *file,char* file_name,macro* head_macro) {
     func_error = 0;
     dest_bnr = NULL; /* dest operand in first word */
     src_bnr = NULL; /* source operand in first word */
-    secend_word = NULL; /* extra info word one */
+    second_word = NULL; /* extra info word one */
     third_word = NULL;  /* extra info word two */
     extern_head = NULL; /* list of extern labels */
     head_machine_code = NULL; /* machine code words list */
@@ -115,11 +115,16 @@ int exe_first_pass(FILE *file,char* file_name,macro* head_macro) {
                             func_error = 1;
                             continue;
                         }
-                        secend_word = operand_word(type1,operand1,OPERAND_SRC,labels_head);
-                        if (secend_word == NULL) {
+
+                        second_word = operand_word(type1,operand1,OPERAND_SRC,labels_head);
+                        if (second_word == NULL) {
                             func_error = 1;
                             continue;
                         }
+                        IC += 2; /* count first word of instruction, plus first extra word */
+                        /* extern label handel for first operand */
+                        is_extern_label(operand1,&extern_head,&IC,&DC,labels_head);
+
                         /* process operand2 */
                         type2 = what_operand_type(operand2, labels_head);
                         dest_bnr = handle_operand(type2, operand2, opcodes[i].opcode_name, line_num);
@@ -132,20 +137,17 @@ int exe_first_pass(FILE *file,char* file_name,macro* head_macro) {
                             func_error = 1;
                             continue;
                         }
+                        IC++; /* count third extra word */
+                        /* extern label handel for second operand */
+                        is_extern_label(operand2,&extern_head,&IC,&DC,labels_head);
+
                         /* ----if register to register----*/
                         if(is_reg_to_reg(type1,type2)) {
-                            memset(secend_word, GARBAGE_VALUE, WORD_SIZE); /* no second word,set to garbage  */
-                            secend_word = handle_reg_to_reg(operand1,operand2);
-                            memset(secend_word, GARBAGE_VALUE, WORD_SIZE); /* no third word,set to garbage */
+                            second_word = handle_reg_to_reg(operand1,operand2);
+                            memset(third_word, GARBAGE_VALUE, WORD_SIZE); /* no third word,set to garbage */
                             word_counter += operands_amount; /* one for first word, one for extra word; 2 word */
-                            IC += word_counter;
-                        }else {
-                            word_counter += operands_amount + 1; /* three word */
-                            IC += word_counter;
+                            IC--; /* substruct one word, third word is not needed */
                         }
-                        /* extern label handel, if operand is extern label */
-                        is_extern_label(operand1,&extern_head,&IC,&DC,labels_head);
-                        is_extern_label(operand2,&extern_head,&IC,&DC,labels_head);
 
                     }
                     /* ----One operand---- */
@@ -159,8 +161,8 @@ int exe_first_pass(FILE *file,char* file_name,macro* head_macro) {
                             func_error = 1;
                             continue;
                         }
-                        secend_word = operand_word(type1,operand1,OPERAND_DST,labels_head);
-                        if(secend_word == NULL) {
+                        second_word = operand_word(type1,operand1,OPERAND_DST,labels_head);
+                        if(second_word == NULL) {
                             func_error = 1;
                             continue;
                         }
@@ -179,18 +181,18 @@ int exe_first_pass(FILE *file,char* file_name,macro* head_macro) {
                         valid_empty(opcodes[i].opcode_name, line_num);
                         src_bnr = bits_convertor(0, OPERAND_SIZE);
                         dest_bnr = bits_convertor(0, OPERAND_SIZE);
-                        memset(secend_word, GARBAGE_VALUE, WORD_SIZE); /* no second word */
+                        memset(second_word, GARBAGE_VALUE, WORD_SIZE); /* no second word */
                         memset(third_word, GARBAGE_VALUE, WORD_SIZE); /* no third word */
                     }
 
 
                      /* create the first word machine code. set ARE bits here becuse its always the same*/
                     word = create_first_word(ARE, dest_bnr, src_bnr, opcode_bnr);
-                    add_machine_code(&head_machine_code, *word, secend_word, third_word);
+                    /* add the words to the macine code list */
+                    add_machine_code(&head_machine_code, *word, second_word, third_word);
 
                     free(word);
                     free(opcode_bnr);
-
 
                 }
             }
@@ -441,7 +443,7 @@ void is_extern_label(char* operand, extern_label** head_ext,int *ic, int *dc, la
     label* current;
     int mention; /* decimal address where the extern was mentioned */
     current = head_label;
-    mention = *ic + *dc -1 ; /* -1 for more readable code. the word counter is before invoking this func */
+    mention = *ic + *dc -1; /* -1 for more readable code. the word counter is before invoking this func */
     while (current != NULL) {
         /* if operand is label name and is extern, add to extern label list */
         if (strcmp(current->labelName, operand) == 0) {

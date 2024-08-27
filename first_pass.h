@@ -20,7 +20,18 @@ typedef enum {
     OPERAND_DST /* dest operand */
 } OperandSRC_DST;
 
-/* main first pass func */
+/**
+ * @brief This is the main function of the program.
+ * The function converts assembly code to binary machine code
+ * The function is using all the helper function to create the words by specific rules.
+ * The machine code words then added to a list.
+ *
+ * @param file pointer to the assembly file
+ * @param file_name name of the file, used for creating all the output files
+ * @param head pointer to the head of a linked list of.use for validation of labales.
+ *
+ * @return Returns 0 if the first pass is successful and no errors are encountered. Returns 1 if any errors occur
+ */
 int exe_first_pass(FILE *file,char* file_name,macro* head);
 
 /**

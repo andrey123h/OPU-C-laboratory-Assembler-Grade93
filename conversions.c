@@ -59,8 +59,8 @@ char* reg_reg_to_word(char *source_str,char *dest_str) {
     int source_start, source_stop,dest_start,dest_stop;
     source_start = SRC_REG_START;
     source_stop = SRC_REG_STOP;
-     dest_start = DST_REG_START;
-     dest_stop = DST_REG_STOP;
+    dest_start = DST_REG_START;
+    dest_stop = DST_REG_STOP;
     word = new_word(WORD_SIZE);
     i = 0;
     /* set all bits to '0' */
