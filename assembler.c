@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
             print_error_msg(3);
             continue;
         }
-        /* ---f irst pass and second pass --- */
+        /* ---first pass and second pass --- */
         /* if there any errors in first pass -> print errors and continue to next file */
         /* if there are no errors -> first pass will proceed to second pass */
         if (exe_first_pass(firstpass,am_file,head) !=0)
