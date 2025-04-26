@@ -1,4 +1,5 @@
-This  assembler project was done by me in 2024 as part of C programing lab course in the Open university.
+## Assembler Project
+### This project was done by me in 2024 as part of C programing lab course in the Open university.
 
 
 
