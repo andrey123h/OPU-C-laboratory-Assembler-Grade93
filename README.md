@@ -9,7 +9,7 @@
 2. use make command.
 3. enter the command ./maman14 (input filename)
 -----------------------------------------
-you can find test files for input in the "testfiles" folder, also output files in "outout" folder.
+you can find test files for input in the "testfiles" folder. output files in "output" folder.
 
 You can find all the instractions and constraints of the project in the course booklet pdf.
 
